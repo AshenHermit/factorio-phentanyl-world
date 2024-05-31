@@ -1,9 +1,8 @@
 require('event-dispatcher')
 local math2d = require('math2d')
 
-local village_size = 50
-
-function generate_village(surface, position)
+function generate_village(surface, position, village_size)
+    global.village_size = village_size
     local width, height = village_size, village_size -- Размер карты
     local cave = {}
     local fill_probability = 0.47
@@ -104,12 +103,13 @@ function generate_village(surface, position)
 
     for x = 1, width do
         for y = 1, height do
-            local pos = { x - width / 2 + position.x, y - height / 2 + position.y }
+            local localPos = { x - width / 2, y - height / 2 }
+            local pos = { localPos[1] + position.x, localPos[2] + position.y }
             if(cave[x][y] ~= "none") then
                 local none_neighbors = count_none_neighbors(x, y)
                 if none_neighbors==0 then
                     if math.random() < 0.02 then
-                        if not spawner_created and math.random() < 0.5 then
+                        if not spawner_created and math.random() < 2 / math2d.position.distance(localPos,{0.1,0.1}) then
                             surface.create_entity({
                                 name = "walker-spawner",
                                 position = pos,
@@ -142,11 +142,16 @@ function generate_village(surface, position)
 end
 
 event_dispatcher:on_event(defines.events.on_chunk_generated, function(event)
-    if (event.area.right_bottom.x ~= 32 or event.area.right_bottom.y ~= -32) then return end
-    local surface = event.surface
+    local pos1 = event.area.left_top
+    local pos2 = event.area.right_bottom
 
-    local pos = event.area.right_bottom
-    generate_village(event.surface, pos)
-    
-    local area = {{pos.x-(village_size/2), pos.y-(village_size/2)}, {pos.x+(village_size/2), pos.y+(village_size/2)}} -- Задайте нужную область
+    if event.surface.get_tile(pos2.x-1, pos2.y-1).name == "trash-ground"
+        and event.surface.get_tile(pos1.x, pos1.y).name == "trash-ground" then
+        if math.random() < 0.05 then
+            local pos = {x=math.ceil((pos1.x + pos2.x)/2), y=math.ceil((pos1.y + pos2.y)/2)}
+            generate_village(event.surface, pos, math.random(50, 100))
+        end
+    end
+    -- local surface = event.surface
+    -- local area = {{pos.x-(village_size/2), pos.y-(village_size/2)}, {pos.x+(village_size/2), pos.y+(village_size/2)}} -- Задайте нужную область
 end)

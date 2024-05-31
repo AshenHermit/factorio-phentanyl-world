@@ -1,10 +1,14 @@
+require("prototypes.effects.blood")
+
 require("prototypes.autoplace-controls")
+
 require("prototypes.items")
 require("prototypes.tiles")
 
 require("prototypes.entity.buildings")
 
 require("prototypes.entity.human_flower")
+require("prototypes.entity.creeping")
 require("prototypes.entity.twister")
 require("prototypes.entity.eater")
 

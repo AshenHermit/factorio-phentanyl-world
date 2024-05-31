@@ -82,32 +82,38 @@ function copyPrototype(type, name, newName)
     local p = table.deepcopy(data.raw[type][name])
     p.name = newName
     if p.minable and p.minable.result then
-        p.minable.result = newName
+        p.minable.result = nil
     end
     return p
 end
 
 -- Копируем тайл grass-1 и создаем новый
-local acid_grass = copyPrototype("tile", "grass-1", "acid-grass")
+local acid_grass = copyPrototype("tile", "grass-1", "meat-grass")
 
-acid_grass.name = "acid-grass"
-acid_grass.order = "b[natural]-a[grass]-a[acid-grass]"
+acid_grass.name = "meat-grass"
+acid_grass.order = "b[natural]-a[grass]-a[meat-grass]"
 
 -- Изменяем параметры нового тайла
 acid_grass.autoplace = {
-    peaks = {
-        {
-            influence = 1.0,
-            starting_area_weight_optimal = 1,
-            starting_area_weight_range = 0,
-            starting_area_weight_max_range = 2,
-            richness_influence = 0
-        }
-    }
+  control = "meat-grass",
+  sharpness = 1,
+  richness_multiplier = 1000,
+  richness_base = 200,
+  coverage = 0.02,
+  max_probability = 0.05,
+  peaks = {
+    {
+      influence = 0.2,
+      noise_layer = "meat-grass",
+      noise_octaves_difference = -1.5,
+      noise_persistence = 0.3,
+    },
+  },
 }
+
 acid_grass.variants = tile_variations_template(
-    config.graphics_path .. "terrain/acid-grass-1.png", "__base__/graphics/terrain/masks/transition-3.png",
-    config.graphics_path .. "terrain/acid-grass-1.png", "__base__/graphics/terrain/masks/hr-transition-3.png",
+    config.graphics_path .. "terrain/meat-grass-1.png", "__base__/graphics/terrain/masks/transition-3.png",
+    config.graphics_path .. "terrain/meat-grass-1.png", "__base__/graphics/terrain/masks/hr-transition-3.png",
     {
         max_size = 4,
         [1] = { weights = {0.085, 0.085, 0.085, 0.085, 0.087, 0.085, 0.065, 0.085, 0.045, 0.045, 0.045, 0.045, 0.005, 0.025, 0.045, 0.045 } },
@@ -115,10 +121,52 @@ acid_grass.variants = tile_variations_template(
         [4] = { probability = 0.91, weights = {0.100, 0.80, 0.80, 0.100, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 }, },
         --[8] = { probability = 1.00, weights = {0.090, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.025, 0.125, 0.005, 0.010, 0.100, 0.100, 0.010, 0.020, 0.020} }
     }
-),
+)
+
+local trash_ground = copyPrototype("tile", "red-desert-0", "trash-ground")
+
+trash_ground.name = "trash-ground"
+trash_ground.order = "b[natural]-a[grass]-a[trash-ground]"
+
+-- Изменяем параметры нового тайла
+trash_ground.autoplace = {
+  control = "trash-ground",
+  sharpness = 0.7,
+  richness_multiplier = 1000,
+  richness_base = 200,
+  coverage = 0.4,
+  max_probability = 0.1,
+  peaks = {
+    {
+      influence = 0.5,
+      noise_layer = "trash-ground",
+      noise_octaves_difference = -1.0,
+      noise_persistence = 0.5,
+      noise_scale = 1.0,
+      starting_area_weight_optimal = 2,
+      starting_area_weight_range = 2,
+      starting_area_weight_max_range = 20,
+      distance_optimal = 20, -- Дистанция от стартовой точки (в плитках)
+      distance_range = 250,
+      distance_max_range = 1000,
+    },
+  },
+}
 
 
-data:extend{ acid_grass }
+trash_ground.variants = tile_variations_template(
+    config.graphics_path .. "terrain/trash-ground.png", "__base__/graphics/terrain/masks/transition-3.png",
+    config.graphics_path .. "terrain/trash-ground.png ", "__base__/graphics/terrain/masks/hr-transition-3.png",
+    {
+        max_size = 4,
+        [1] = { weights = {0.085, 0.085, 0.085, 0.085, 0.087, 0.085, 0.065, 0.085, 0.045, 0.045, 0.045, 0.045, 0.005, 0.025, 0.045, 0.045 } },
+        [2] = { probability = 0.91, weights = {0.150, 0.150, 0.150, 0.150, 0.018, 0.020, 0.015, 0.025, 0.015, 0.020, 0.025, 0.015, 0.025, 0.025, 0.010, 0.025 }, },
+        [4] = { probability = 0.91, weights = {0.100, 0.80, 0.80, 0.100, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 }, },
+        --[8] = { probability = 1.00, weights = {0.090, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.025, 0.125, 0.005, 0.010, 0.100, 0.100, 0.010, 0.020, 0.020} }
+    }
+)
+
+data:extend{ acid_grass, trash_ground, }
 
 
 local function disable_autoplace(tile_name)
@@ -157,7 +205,7 @@ disable_tiles{
 "grass-3",
 "grass-4",
 "dry-dirt",
--- "dirt-1",
+"dirt-1",
 "dirt-2",
 "dirt-3",
 "dirt-4",

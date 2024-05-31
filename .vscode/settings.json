@@ -12,5 +12,8 @@
     "Lua.workspace.userThirdParty": [
         "c:\\Users\\hermit\\AppData\\Roaming\\Code\\User\\workspaceStorage\\c3311285bcb81dd9c007c3e50552d24d\\justarandomgeek.factoriomod-debug\\sumneko-3rd"
     ],
-    "Lua.workspace.checkThirdParty": "ApplyInMemory"
+    "Lua.workspace.checkThirdParty": "ApplyInMemory",
+    "gitlens.codeLens.enabled": false,
+    "gitlens.codeLens.recentChange.enabled": false,
+    "gitlens.codeLens.authors.enabled": false
 }

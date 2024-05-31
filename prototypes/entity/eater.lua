@@ -13,9 +13,10 @@ eater.order = 'b-b-c'
 eater.ai_settings.do_separation = true
 eater.ai_settings.path_resolution_modifier = -2
 eater.distraction_cooldown = 300
-eater.vision_distance = 20
-eater.movement_speed = 0.2
-eater.distance_per_frame = 0.2
+eater.vision_distance = 10
+eater.max_pursue_distance = 20
+eater.movement_speed = 0.3
+eater.distance_per_frame = 0.1
 eater.pollution_to_join_attack = 10000
 eater.healing_per_tick = 0.01
 

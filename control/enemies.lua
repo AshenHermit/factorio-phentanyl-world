@@ -7,26 +7,47 @@ event_dispatcher:on_event(defines.events.on_chunk_generated, function(event)
     if(event.surface.name ~= game.surfaces[1].name) then return end
     local surface = event.surface
     local area = event.area
-  
-    if math.random() < 0.1 then
+
+    for i = 1, 5, 1 do
+      if math.random() < 0.5 then
         local pos = {
             x = math.random(area.left_top.x, area.right_bottom.x),
             y = math.random(area.left_top.y, area.right_bottom.y)
         }
-
-        local enemy = surface.create_entity{
-            name = "twister",
+        local tile_name = surface.get_tile(pos.x, pos.y).name
+        if(tile_name=="meat-grass") then
+          local enemies = {"twister", "creeping", "eater"}
+          local enemyName = enemies[math.random(1, 3)]
+  
+          local enemy = surface.create_entity{
+            name = enemyName,
             position = pos,
             force = "enemy"
-        }
+          }
+        end
+      end
     end
 end)
 
 event_dispatcher:on_event(defines.events.on_entity_died, function(event)
   local entity = event.entity
   if entity.name == "twister" then
-
     loot.spill_random_loot(entity.surface, entity.position, {{name = "bullet-worms", count_min = 1, count_max = 10, probability = 0.5}})
+  end
+  
+  local blood = entity.surface.create_entity{
+    name = "blood-puddle",
+    position = entity.position,
+  }
+end)
+
+event_dispatcher:on_event(defines.events.on_chunk_generated, function(event)
+  local surface = event.surface
+  local area = event.area
+
+  -- Удаление всех спавнеров из сгенерированного чанка
+  for _, entity in pairs(surface.find_entities_filtered{area = area, type = "unit-spawner"}) do
+      entity.destroy()
   end
 end)
 
