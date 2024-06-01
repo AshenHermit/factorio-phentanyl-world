@@ -2,6 +2,7 @@
 local remnants = require("control.remnants")
 local enemies = require("control.enemies")
 require("control.village")
+require("control.acid-cracks")
 
 require('event-dispatcher')
 event_dispatcher:register()

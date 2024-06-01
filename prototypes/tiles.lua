@@ -88,30 +88,38 @@ function copyPrototype(type, name, newName)
 end
 
 -- Копируем тайл grass-1 и создаем новый
-local acid_grass = copyPrototype("tile", "grass-1", "meat-grass")
+local meat_grass = copyPrototype("tile", "grass-1", "meat-grass")
 
-acid_grass.name = "meat-grass"
-acid_grass.order = "b[natural]-a[grass]-a[meat-grass]"
+meat_grass.name = "meat-grass"
+meat_grass.order = "b[natural]-a[grass]-a[meat-grass]"
 
 -- Изменяем параметры нового тайла
-acid_grass.autoplace = {
+meat_grass.autoplace = {
   control = "meat-grass",
   sharpness = 1,
   richness_multiplier = 1000,
   richness_base = 200,
-  coverage = 0.02,
-  max_probability = 0.05,
+  coverage = 0.3,
+  max_probability = 0.1,
   peaks = {
     {
-      influence = 0.2,
+      influence = 1,
+      min_influence = 0,
+      max_influence = 1,
+
       noise_layer = "meat-grass",
-      noise_octaves_difference = -1.5,
-      noise_persistence = 0.3,
+      -- noise_octaves_difference = -1.5,
+      -- noise_persistence = 0.3,
+      -- noise_scale = 1.0,
+      
+      distance_optimal = 500,  -- Тайлы начинают появляться после 100 тайлов от стартовой точки
+      distance_range = 200,     -- Тайлы продолжают появляться на протяжении следующих 50 тайлов
+      distance_max_range = 1500
     },
   },
 }
 
-acid_grass.variants = tile_variations_template(
+meat_grass.variants = tile_variations_template(
     config.graphics_path .. "terrain/meat-grass-1.png", "__base__/graphics/terrain/masks/transition-3.png",
     config.graphics_path .. "terrain/meat-grass-1.png", "__base__/graphics/terrain/masks/hr-transition-3.png",
     {
@@ -135,7 +143,7 @@ trash_ground.autoplace = {
   richness_multiplier = 1000,
   richness_base = 200,
   coverage = 0.4,
-  max_probability = 0.1,
+  max_probability = 1,
   peaks = {
     {
       influence = 0.5,
@@ -147,8 +155,8 @@ trash_ground.autoplace = {
       starting_area_weight_range = 2,
       starting_area_weight_max_range = 20,
       distance_optimal = 20, -- Дистанция от стартовой точки (в плитках)
-      distance_range = 250,
-      distance_max_range = 1000,
+      distance_range = 200,
+      distance_max_range = 500,
     },
   },
 }
@@ -166,7 +174,56 @@ trash_ground.variants = tile_variations_template(
     }
 )
 
-data:extend{ acid_grass, trash_ground, }
+local acid_ground = copyPrototype("tile", "dirt-1", "acid-ground")
+
+acid_ground.name = "acid-ground"
+acid_ground.order = "b[natural]-a[dirt]-b[acid-ground]"
+
+local function within_distance(distance)
+  return function(x, y)
+      local spawn_x, spawn_y = 0, 0  -- Координаты стартовой точки (может измениться в зависимости от карты)
+      local dist_sq = (x - spawn_x)^2 + (y - spawn_y)^2
+      return dist_sq <= distance^2 and 1 or 0
+  end
+end
+
+-- Изменяем параметры нового тайла
+acid_ground.autoplace = {
+  control = "acid-ground",
+  sharpness = 0.7,
+  richness_multiplier = 1000,
+  richness_base = 200,
+  coverage = 0.25,
+  max_probability = 0.05,
+  peaks = {
+    {
+      influence = 1,
+      min_influence=0,
+      max_influence=0,
+      noise_layer = "acid-ground",
+      noise_octaves_difference = -1.5,
+      noise_persistence = 0.8,
+      distance_optimal = 1,
+      distance_range = 10,
+      distance_max_range = 10,
+      distance_top_property_limit = 10,
+    },
+  },
+}
+
+acid_ground.variants = tile_variations_template(
+    config.graphics_path .. "terrain/acid-ground-1.png", "__base__/graphics/terrain/masks/transition-3.png",
+    config.graphics_path .. "terrain/acid-ground-1.png ", "__base__/graphics/terrain/masks/hr-transition-3.png",
+    {
+        max_size = 4,
+        [1] = { weights = {0.085, 0.085, 0.085, 0.085, 0.087, 0.085, 0.065, 0.085, 0.045, 0.045, 0.045, 0.045, 0.005, 0.025, 0.045, 0.045 } },
+        [2] = { probability = 0.91, weights = {0.150, 0.150, 0.150, 0.150, 0.018, 0.020, 0.015, 0.025, 0.015, 0.020, 0.025, 0.015, 0.025, 0.025, 0.010, 0.025 }, },
+        [4] = { probability = 0.91, weights = {0.100, 0.80, 0.80, 0.100, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 }, },
+        --[8] = { probability = 1.00, weights = {0.090, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.025, 0.125, 0.005, 0.010, 0.100, 0.100, 0.010, 0.020, 0.020} }
+    }
+)
+
+data:extend{acid_ground, trash_ground, meat_grass}
 
 
 local function disable_autoplace(tile_name)

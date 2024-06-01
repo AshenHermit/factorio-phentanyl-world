@@ -21,11 +21,21 @@ data:extend(
         category = "terrain"
     },
     {
-        type = "noise-layer",
-        name = "meat-grass"
+        type = "autoplace-control",
+        name = "acid-ground",
+        order = "c-a",
+        category = "terrain"
     },
     {
         type = "noise-layer",
         name = "trash-ground"
+    },
+    {
+        type = "noise-layer",
+        name = "acid-ground"
+    },
+    {
+        type = "noise-layer",
+        name = "meat-grass"
     },
 })
